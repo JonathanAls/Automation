@@ -30,20 +30,24 @@ test('Flujo de Compra Aleatoria', async ({ page, request }) => {
     await search.addRandomProducts(qty, product);
   });
 
-  // 4. Compra y cancelación
-    await test.step('Finalizar y Cancelar', async () => {
+  // 4. Compra
+    await test.step('Realizar la compra', async () => {
     await checkout.openCart();
     await promotion.skipPromotion();
     await checkout.selectSlot();
     await checkout.buy();
+  });
+
+   // 5. Cancelación
+    await test.step('Cancelar la compra realizada', async () =>{
     await checkout.cancelOrder();
     await checkout.verifyOrderCanceled();
-  });
-  // 5. Limpieza de carrito
+    })
+
+  // 6. Limpieza de carrito
     const cartApi = new CartApi(request, sessionToken);
     await cartApi.deleteCart();
 });
-
 
 test('Consulta de disponibilidad de Slots vía API', async ({ page, request }) => {
   const login = new LoginPage(page);

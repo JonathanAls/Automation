@@ -1,71 +1,41 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
 
 export class BaseApi {
+  // 1. Debemos declarar las propiedades aquí arriba para que TS sepa que existen
   protected request: APIRequestContext;
-  private authToken?: string;
+  protected baseUrl: string;
 
+  // 2. Agregamos el tipo 'APIRequestContext' al parámetro 'request'
   constructor(request: APIRequestContext) {
     this.request = request;
+    this.baseUrl = 'https://prod.alsuperapi.com/'; 
   }
 
-  /**
-   * Setea token Bearer para siguientes requests
-   */
-  setAuthToken(token: string) {
-    this.authToken = token;
+  // 3. Tipamos 'endpoint' como string y las 'options' como objeto
+  async get(endpoint: string, options: object = {}): Promise<APIResponse> {
+    const response = await this.request.get(`${this.baseUrl}${endpoint}`, options);
+    return response;
   }
 
-  /**
-   * Headers base del API
-   */
-  private getHeaders() {
-    const headers: Record<string, string> = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    if (this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
-    }
-
-    return headers;
-  }
-
-  /**
-   * GET
-   */
-  protected async get(endpoint: string): Promise<APIResponse> {
-    return this.request.get(endpoint, {
-      headers: this.getHeaders(),
+  // 4. Tipamos 'data' como 'any' (cualquier cosa) para permitir diferentes bodies
+  async post(endpoint: string, data: any, options: object = {}): Promise<APIResponse> {
+    const response = await this.request.post(`${this.baseUrl}${endpoint}`, {
+      data,
+      ...options,
     });
+    return response;
   }
 
-  /**
-   * POST
-   */
-  protected async post(endpoint: string, body?: any): Promise<APIResponse> {
-    return this.request.post(endpoint, {
-      headers: this.getHeaders(),
-      data: body,
+  async put(endpoint: string, data: any, options: object = {}): Promise<APIResponse> {
+    const response = await this.request.put(`${this.baseUrl}${endpoint}`, {
+      data,
+      ...options,
     });
+    return response;
   }
 
-  /**
-   * PUT
-   */
-  protected async put(endpoint: string, body?: any): Promise<APIResponse> {
-    return this.request.put(endpoint, {
-      headers: this.getHeaders(),
-      data: body,
-    });
-  }
-
-  /**
-   * DELETE
-   */
-  protected async delete(endpoint: string): Promise<APIResponse> {
-    return this.request.delete(endpoint, {
-      headers: this.getHeaders(),
-    });
+  async delete(endpoint: string, options: object = {}): Promise<APIResponse> {
+    const response = await this.request.delete(`${this.baseUrl}${endpoint}`, options);
+    return response;
   }
 }
